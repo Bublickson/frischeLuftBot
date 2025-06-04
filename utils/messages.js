@@ -1,5 +1,6 @@
 import axios from "axios";
 import dayjs from "dayjs";
+import e from "express";
 
 export const START_MESSAGE = `
 *Welcome!* 👋
@@ -28,32 +29,30 @@ export function getNotificationMessage(user) {
 export function airDescription(aqi) {
   switch (true) {
     case aqi > 300:
-      return "Hazardous";
+      return ["Hazardous", "hazardous"];
     case aqi >= 201:
-      return "Very Unhealthy";
+      return ["Very Unhealthy", "very_unhealthy"];
     case aqi >= 151:
-      return "Unhealthy";
+      return ["Unhealthy", "unhealthy"];
     case aqi >= 101:
-      return "Unhealthy for Sensitive Groups";
+      return ["Unhealthy for Sensitive Groups", "unhealthy_sensitive"];
     case aqi >= 51:
-      return "Moderate";
+      return ["Moderate", "moderate"];
     case aqi <= 50:
-      return "Good";
+      return ["Good", "good"];
     default:
       return "Unknown type";
   }
 }
 
-const pollutionLevelNumbers = {
+const pollutionLevels = {
   moderate: 51,
   unhealthy_sensitive: 101,
   unhealthy: 151,
 };
 
-export async function airQualityInformation(stationID, notifications) {
+export async function getAirData(stationID) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;
-
-  console.log(pollutionLevelNumbers[notifications.pollution_level]);
 
   if (!stationID) {
     return "Please use /location to set up your station location";
@@ -67,11 +66,22 @@ export async function airQualityInformation(stationID, notifications) {
     return "Unknown ID";
   }
 
-  /* if(notifications.pollution_level) {
+  return response.data;
+}
 
-  } */
+export async function airQualityNotifications(stationID, notifications) {
+  const response = await getAirData(stationID);
 
-  const data = response.data.data;
+  if (response.data.aqi >= pollutionLevels[notifications.pollution_level]) {
+    return airQualityInformation(stationID);
+  }
+  return "Хуй на!";
+}
+
+export async function airQualityInformation(stationID) {
+  const response = await getAirData(stationID);
+
+  const data = response.data;
 
   const city = data.city?.name ?? "Unknown city";
   const aqi = data.aqi ?? "N/A";
@@ -96,7 +106,7 @@ export async function airQualityInformation(stationID, notifications) {
   return `\`\`\`json
 📍 City: ${city}
 📅 Last analysis: ${date}
-💨 AQI: ${aqi} (${airDescription(aqi)})
+💨 AQI: ${aqi} (${airDescription(aqi)[0]})
     
 📊 Indicators:
 - Temperature: ${temperature}°C

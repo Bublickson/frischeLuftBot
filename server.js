@@ -42,10 +42,7 @@ bot.onText(`/air`, async (msg) => {
   const user = findUser(msg.chat.id);
 
   try {
-    const airData = await airQualityInformation(
-      user.geolocation.stationID,
-      user.notifications
-    );
+    const airData = await airQualityInformation(user.geolocation.stationID);
     bot.sendMessage(msg.chat.id, airData, {
       parse_mode: "Markdown",
     });
