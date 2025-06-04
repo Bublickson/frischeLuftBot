@@ -73,9 +73,12 @@ export async function airQualityNotifications(stationID, notifications) {
   const response = await getAirData(stationID);
 
   if (response.data.aqi >= pollutionLevels[notifications.pollution_level]) {
-    return airQualityInformation(stationID);
+    return [
+      await airQualityInformation(stationID),
+      airDescription(response.data.aqi)[1],
+    ];
   }
-  return "Хуй на!";
+  return;
 }
 
 export async function airQualityInformation(stationID) {

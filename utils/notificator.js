@@ -3,20 +3,33 @@ import { loadUserData } from "./userService.js";
 import { airQualityNotifications } from "./messages.js";
 import { bot } from "../server.js";
 
+const lastAirLevels = {}; // Храним по user.id
+
 export async function testNotifications() {
-  cron.schedule("0 * * * *", async () => {
+  cron.schedule("*/10 * * * * *", async () => {
     const usersData = await loadUserData();
+
     for (const user of usersData.users) {
       if (user.notifications.enabled) {
         const airData = await airQualityNotifications(
           user.geolocation.stationID,
           user.notifications
         );
-        if (airData) {
-          bot.sendMessage(user.id, airData, {
+
+        if (airData[0] && airData[1] !== lastAirLevels[user.id]) {
+          lastAirLevels[user.id] = airData[1];
+
+          bot.sendMessage(user.id, airData[0], {
             parse_mode: "Markdown",
           });
-          console.log(`Сообщение отправленно: ${user.first_name}`);
+
+          console.log(
+            `Сообщение отправлено: ${user.first_name}, ${airData[1]}`
+          );
+        } else {
+          console.log(
+            `Не отправлено (${user.first_name}): тот же уровень AQI (${airData[1]})`
+          );
         }
       }
     }
