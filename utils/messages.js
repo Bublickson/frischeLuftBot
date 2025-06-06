@@ -1,6 +1,5 @@
 import axios from "axios";
 import dayjs from "dayjs";
-import e from "express";
 
 export const START_MESSAGE = `
 *Welcome!* 👋
@@ -20,7 +19,7 @@ I'll notify you if the air quality in your area falls below your chosen threshol
 
 export function getNotificationMessage(user) {
   return `Notifications are: ${
-    user.notifications.enabled ? "enabled ✅" : "disabled 🚫"
+    user.notifications.enabled ? "🟢 *ON*" : "🔴 *OFF*"
   } \nPollution level is: ${
     user.notifications.pollution_level
   } \nGeolocation is: ${user.geolocation.name}`;
@@ -29,26 +28,29 @@ export function getNotificationMessage(user) {
 export function airDescription(aqi) {
   switch (true) {
     case aqi > 300:
-      return ["Hazardous", "hazardous"];
+      return "Hazardous";
     case aqi >= 201:
-      return ["Very Unhealthy", "very_unhealthy"];
+      return "Very Unhealthy";
     case aqi >= 151:
-      return ["Unhealthy", "unhealthy"];
+      return "Unhealthy";
     case aqi >= 101:
-      return ["Unhealthy for Sensitive Groups", "unhealthy_sensitive"];
+      return "Unhealthy for Sensitive Groups";
     case aqi >= 51:
-      return ["Moderate", "moderate"];
+      return "Moderate";
     case aqi <= 50:
-      return ["Good", "good"];
+      return "Good";
     default:
       return "Unknown type";
   }
 }
 
 const pollutionLevels = {
-  moderate: 51,
-  unhealthy_sensitive: 101,
-  unhealthy: 151,
+  Good: 0,
+  Moderate: 51,
+  "Unhealthy for Sensitive Groups": 101,
+  Unhealthy: 151,
+  "Very Unhealthy": 201,
+  Hazardous: 300,
 };
 
 export async function getAirData(stationID) {
@@ -69,20 +71,35 @@ export async function getAirData(stationID) {
   return response.data;
 }
 
-export async function airQualityNotifications(stationID, notifications) {
+export async function airQualityNotifications(
+  stationID,
+  notifications,
+  lastAirLevel
+) {
   const response = await getAirData(stationID);
-
   if (response.data.aqi >= pollutionLevels[notifications.pollution_level]) {
     return [
-      await airQualityInformation(stationID),
-      airDescription(response.data.aqi)[1],
+      await airQualityInformation(null, response),
+      airDescription(response.data.aqi),
     ];
+  } else if (
+    response.data.aqi <= pollutionLevels[notifications.pollution_level] &&
+    lastAirLevel != "lower level" &&
+    lastAirLevel != undefined
+  ) {
+    console.log("Отработанно когда ниже уровень загрезнение");
+    return [
+      "✅ *Air quality has returned to desired level*" +
+        (await airQualityInformation(null, response)),
+      "lower level",
+    ];
+  } else {
+    console.log("Ничего не отработанно");
   }
-  return;
 }
 
-export async function airQualityInformation(stationID) {
-  const response = await getAirData(stationID);
+export async function airQualityInformation(stationID, response) {
+  response ??= await getAirData(stationID);
 
   const data = response.data;
 
@@ -109,7 +126,7 @@ export async function airQualityInformation(stationID) {
   return `\`\`\`json
 📍 City: ${city}
 📅 Last analysis: ${date}
-💨 AQI: ${aqi} (${airDescription(aqi)[0]})
+💨 AQI: ${aqi} (${airDescription(aqi)})
     
 📊 Indicators:
 - Temperature: ${temperature}°C
