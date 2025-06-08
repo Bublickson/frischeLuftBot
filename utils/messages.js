@@ -20,9 +20,9 @@ I'll notify you if the air quality in your area falls below your chosen threshol
 export function getNotificationMessage(user) {
   return `Notifications are: ${
     user.notifications.enabled ? "🟢 *ON*" : "🔴 *OFF*"
-  } \nPollution level is: ${
+  } \nPollution level is: *${
     user.notifications.pollution_level
-  } \nGeolocation is: ${user.geolocation.name}`;
+  }* \nGeolocation is: *${user.geolocation.name}*`;
 }
 
 export function airDescription(aqi) {

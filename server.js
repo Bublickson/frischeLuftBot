@@ -139,7 +139,7 @@ bot.on("callback_query", (callbackQuery) => {
   const optionsSettings = {
     moderate: { pollution_level: "Moderate" },
     unhealthy_sensitive: { pollution_level: "Unhealthy for Sensitive Groups" },
-    unhealthy: { pollution_level: "unhealthy" },
+    unhealthy: { pollution_level: "Unhealthy" },
     notify_on: { enabled: true },
     notify_off: { enabled: false },
   };
@@ -176,7 +176,25 @@ bot.on("callback_query", (callbackQuery) => {
           });
       } else {
         bot
-          .sendMessage(msg.chat.id, getNotificationMessage(user))
+          .sendMessage(
+            msg.chat.id,
+            `🔔 Notifications settings:\n\n${getNotificationMessage(user)}`,
+            {
+              parse_mode: "Markdown",
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: "🟢 Turn on", callback_data: "notify_on" },
+                    {
+                      text: "📊 Pollution Level",
+                      callback_data: "notify_pollution_level",
+                    },
+                    { text: "🔴 Turn off", callback_data: "notify_off" },
+                  ],
+                ],
+              },
+            }
+          )
           .then((sentedMessage) => {
             templastSendedMessage[msg.chat.id] = sentedMessage.message_id;
           });
