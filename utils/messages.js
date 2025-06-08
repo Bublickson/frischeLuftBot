@@ -18,7 +18,7 @@ I'll notify you if the air quality in your area falls below your chosen threshol
   `;
 
 export function getNotificationMessage(user) {
-  const text = `Notifications are: ${
+  const text = `🔔 Notifications settings:\n\n Notifications are: ${
     user.notifications.enabled ? "🟢 *ON*" : "🔴 *OFF*"
   } \nPollution level is: *${
     user.notifications.pollution_level
