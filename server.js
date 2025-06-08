@@ -60,28 +60,13 @@ bot.onText(`/air`, async (msg) => {
 
 bot.onText("/notifications", (msg) => {
   const user = findUser(msg.chat.id);
-
-  const options = {
-    parse_mode: "Markdown",
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: "🟢 Turn on", callback_data: "notify_on" },
-          {
-            text: "📊 Pollution Level",
-            callback_data: "notify_pollution_level",
-          },
-          { text: "🔴 Turn off", callback_data: "notify_off" },
-        ],
-      ],
-    },
-  };
+  const { text, options } = getNotificationMessage(user);
 
   if (user.geolocation.stationID) {
     bot
       .sendMessage(
         msg.chat.id,
-        `🔔 Notifications settings:\n\n${getNotificationMessage(user)}`,
+        `🔔 Notifications settings:\n\n${text}`,
         options
       )
       .then((sentedMessage) => {
@@ -149,28 +134,15 @@ bot.on("callback_query", (callbackQuery) => {
     const settingsValue = optionsSettings[data][settingsKey];
     if (user.notifications[settingsKey] !== settingsValue) {
       saveUserData(msg.chat.id, optionsSettings[data], "notifications");
+      const { text, options } = getNotificationMessage(user);
       if (templastSendedMessage[msg.chat.id]) {
         bot
-          .editMessageText(
-            `🔔 Notifications settings:\n\n${getNotificationMessage(user)}`,
-            {
-              chat_id: msg.chat.id,
-              message_id: templastSendedMessage[msg.chat.id],
-              parse_mode: "Markdown",
-              reply_markup: {
-                inline_keyboard: [
-                  [
-                    { text: "🟢 Turn on", callback_data: "notify_on" },
-                    {
-                      text: "📊 Pollution Level",
-                      callback_data: "notify_pollution_level",
-                    },
-                    { text: "🔴 Turn off", callback_data: "notify_off" },
-                  ],
-                ],
-              },
-            }
-          )
+          .editMessageText(`🔔 Notifications settings:\n\n${text}`, {
+            chat_id: msg.chat.id,
+            message_id: templastSendedMessage[msg.chat.id],
+            parse_mode: options.parse_mode,
+            reply_markup: options.reply_markup,
+          })
           .catch((err) => {
             console.log("Ошибка при обновлении:", err.message);
           });
@@ -178,22 +150,8 @@ bot.on("callback_query", (callbackQuery) => {
         bot
           .sendMessage(
             msg.chat.id,
-            `🔔 Notifications settings:\n\n${getNotificationMessage(user)}`,
-            {
-              parse_mode: "Markdown",
-              reply_markup: {
-                inline_keyboard: [
-                  [
-                    { text: "🟢 Turn on", callback_data: "notify_on" },
-                    {
-                      text: "📊 Pollution Level",
-                      callback_data: "notify_pollution_level",
-                    },
-                    { text: "🔴 Turn off", callback_data: "notify_off" },
-                  ],
-                ],
-              },
-            }
+            `🔔 Notifications settings:\n\n${text}`,
+            options
           )
           .then((sentedMessage) => {
             templastSendedMessage[msg.chat.id] = sentedMessage.message_id;

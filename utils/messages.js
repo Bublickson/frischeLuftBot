@@ -18,11 +18,27 @@ I'll notify you if the air quality in your area falls below your chosen threshol
   `;
 
 export function getNotificationMessage(user) {
-  return `Notifications are: ${
+  const text = `Notifications are: ${
     user.notifications.enabled ? "🟢 *ON*" : "🔴 *OFF*"
   } \nPollution level is: *${
     user.notifications.pollution_level
   }* \nGeolocation is: *${user.geolocation.name}*`;
+  const options = {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: "🟢 Turn on", callback_data: "notify_on" },
+          {
+            text: "📊 Pollution Level",
+            callback_data: "notify_pollution_level",
+          },
+          { text: "🔴 Turn off", callback_data: "notify_off" },
+        ],
+      ],
+    },
+  };
+  return { text, options };
 }
 
 export function airDescription(aqi) {

@@ -41,13 +41,12 @@ export async function saveUserData(user_id, newUserData, dataTopic) {
         ...user[dataTopic],
         ...newUserData, // обновляем или добавляем только нужные поля
       };
-
       await fs.writeFile(
         "users.json",
         JSON.stringify(userData, null, 2),
         "utf-8"
       );
-      console.log("✅ Settings saved for user:", user_id);
+      console.log("✅ Settings saved for user:", user.first_name);
     } else {
       console.log("⚠️ User was not found, while saving settings:", user_id);
     }
