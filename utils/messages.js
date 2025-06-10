@@ -18,11 +18,22 @@ I'll notify you if the air quality in your area falls below your chosen threshol
   `;
 
 export function getNotificationMessage(user) {
-  const text = `🔔 Notifications settings:\n\n Notifications are: ${
-    user.notifications.enabled ? "🟢 *ON*" : "🔴 *OFF*"
-  } \nPollution level is: *${
-    user.notifications.pollution_level
-  }* \nGeolocation is: *${user.geolocation.name}*`;
+  const level = user.notifications.pollution_level;
+  const aqiThreshold = pollutionLevels[level];
+  const emoji = pollutionLevelsEmoji[level] || "";
+  const isEnabled = user.notifications.enabled;
+
+  const notificationInfo = isEnabled
+    ? `📬 You will receive notifications if the *AQI level* exceeds *${aqiThreshold}*`
+    : `🚫 You will not receive any notifications.`;
+
+  const text =
+    `🔔 *Notification Settings*\n\n` +
+    `*Status:* ${isEnabled ? "🟢 ON" : "🔴 OFF"}\n` +
+    `*Pollution level:* ${level} ${emoji}\n` +
+    `*Geolocation:* ${user.geolocation.name} 🌍\n\n` +
+    notificationInfo;
+
   const options = {
     parse_mode: "Markdown",
     reply_markup: {
@@ -50,7 +61,7 @@ export function airDescription(aqi) {
     case aqi >= 151:
       return "Unhealthy";
     case aqi >= 101:
-      return "Unhealthy for Sensitive Groups";
+      return "Sensitive Groups";
     case aqi >= 51:
       return "Moderate";
     case aqi <= 50:
@@ -63,10 +74,16 @@ export function airDescription(aqi) {
 const pollutionLevels = {
   Good: 0,
   Moderate: 51,
-  "Unhealthy for Sensitive Groups": 101,
+  "Sensitive Groups": 101,
   Unhealthy: 151,
   "Very Unhealthy": 201,
   Hazardous: 300,
+};
+
+const pollutionLevelsEmoji = {
+  Moderate: "🟡",
+  "Sensitive Groups": "🟠",
+  Unhealthy: "🔴",
 };
 
 export async function getAirData(stationID) {

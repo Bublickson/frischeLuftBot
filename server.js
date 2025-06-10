@@ -86,12 +86,22 @@ bot.on("callback_query", (callbackQuery) => {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: "Moderate", callback_data: "moderate" },
             {
-              text: "Unhealthy for Sensitive Groups",
+              text: "🟡 Moderate — AQI 50+",
+              callback_data: "moderate",
+            },
+          ],
+          [
+            {
+              text: "🟠 Sensitive — AQI 100+",
               callback_data: "unhealthy_sensitive",
             },
-            { text: "Unhealthy", callback_data: "unhealthy" },
+          ],
+          [
+            {
+              text: "🔴 Unhealthy — AQI 150+",
+              callback_data: "unhealthy",
+            },
           ],
         ],
       },
@@ -132,7 +142,7 @@ bot.on("callback_query", (callbackQuery) => {
 
   const optionsSettings = {
     moderate: { pollution_level: "Moderate" },
-    unhealthy_sensitive: { pollution_level: "Unhealthy for Sensitive Groups" },
+    unhealthy_sensitive: { pollution_level: "Sensitive Groups" },
     unhealthy: { pollution_level: "Unhealthy" },
     notify_on: { enabled: true },
     notify_off: { enabled: false },
