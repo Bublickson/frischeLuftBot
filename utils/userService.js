@@ -5,7 +5,7 @@ export async function loadUserData() {
   try {
     return JSON.parse(await fs.readFile("users.json", "utf-8"));
   } catch (error) {
-    console.log("Failed to load user data", error);
+    logToFile(`❌ Failed to load user data: ${error.message}`);
   }
 }
 
@@ -24,12 +24,16 @@ export async function saveUserProfile(userInfo) {
         JSON.stringify(userData, null, 2),
         "utf-8"
       );
-      console.log("✅ User profile saved:", userInfo);
+      logToFile(
+        `✅ User profile saved: ${userInfo.first_name}, id:${userInfo.id}`
+      );
     } else {
-      console.log("ℹ️ User profile exists:", userInfo.id);
+      logToFile(
+        `ℹ️ User profile exists: ${userInfo.first_name}, id:${userInfo.id}`
+      );
     }
   } catch (error) {
-    console.error("❌ User profile saving Error:", error);
+    logToFile(`❌ User profile saving Error: ${error.message}`);
   }
 }
 
@@ -47,12 +51,16 @@ export async function saveUserData(user_id, newUserData, dataTopic) {
         JSON.stringify(userData, null, 2),
         "utf-8"
       );
-      console.log("✅ Settings saved for user:", user.first_name);
+      logToFile(
+        `✅ Settings saved for user: ${user.first_name}, id:${user.id}`
+      );
     } else {
-      console.log("⚠️ User was not found, while saving settings:", user_id);
+      logToFile(
+        `⚠️ User was not found, while saving settings: ${user.first_name}, id:${user.id}`
+      );
     }
   } catch (error) {
-    console.error("❌ Settings saving Error:", error);
+    logToFile(`❌ Settings saving Error: ${error.message}`);
   }
 }
 
