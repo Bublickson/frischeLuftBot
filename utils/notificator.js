@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { loadUserData } from "./userService.js";
+import { readUsers } from "./userService.js";
 import { airQualityNotifications } from "./messages.js";
 import { bot } from "../server.js";
 
@@ -7,7 +7,7 @@ const lastAirLevels = {}; // Храним по user.id
 
 export async function testNotifications() {
   cron.schedule("0 * * * *", async () => {
-    const usersData = await loadUserData();
+    const usersData = await readUsers();
 
     for (const user of usersData.users) {
       if (user.notifications.enabled) {

@@ -34,13 +34,13 @@ const templastSendedMessage = {};
 
 testNotifications();
 
-bot.onText("/start", (msg) => {
+bot.onText("/start", async (msg) => {
   bot.sendMessage(msg.chat.id, START_MESSAGE, { parse_mode: "Markdown" });
-  saveUserProfile(msg.chat);
+  await saveUserProfile(msg.chat);
 });
 
 bot.onText(`/air`, async (msg) => {
-  const user = findUser(msg.chat.id);
+  const user = await findUser(msg.chat.id);
   logToFile(`User ${user.first_name} requested air quality data.`);
 
   try {
@@ -62,8 +62,8 @@ bot.onText(`/air`, async (msg) => {
   }
 });
 
-bot.onText("/notifications", (msg) => {
-  const user = findUser(msg.chat.id);
+bot.onText("/notifications", async (msg) => {
+  const user = await findUser(msg.chat.id);
   const { text, options } = getNotificationMessage(user);
 
   if (user.geolocation.stationID) {
@@ -91,13 +91,14 @@ bot.onText("/notifications", (msg) => {
   }
 });
 
-bot.on("callback_query", (callbackQuery) => {
+bot.on("callback_query", async (callbackQuery) => {
   const msg = callbackQuery.message;
   const data = callbackQuery.data;
-  const user = findUser(msg.chat.id);
-  const { text } = getNotificationMessage(user);
-
+  let user = await findUser(msg.chat.id);
   if (data === "notify_pollution_level") {
+    user = await findUser(msg.chat.id);
+    const { text } = getNotificationMessage(user);
+
     const options = {
       parse_mode: "Markdown",
       reply_markup: {
@@ -155,7 +156,7 @@ bot.on("callback_query", (callbackQuery) => {
     (data === "1" || data === "2" || data === "3")
   ) {
     const geoData = tempGeoData[msg.chat.id][parseInt(data) - 1];
-    saveUserData(msg.chat.id, geoData, "geolocation");
+    await saveUserData(msg.chat.id, geoData, "geolocation");
 
     bot.editMessageText(`You have picked: *${geoData.name}*`, {
       chat_id: msg.chat.id,
@@ -178,7 +179,8 @@ bot.on("callback_query", (callbackQuery) => {
     const settingsKey = Object.keys(optionsSettings[data]);
     const settingsValue = optionsSettings[data][settingsKey];
     if (user.notifications[settingsKey] !== settingsValue) {
-      saveUserData(msg.chat.id, optionsSettings[data], "notifications");
+      await saveUserData(msg.chat.id, optionsSettings[data], "notifications");
+      user = await findUser(msg.chat.id);
       const { text, options } = getNotificationMessage(user);
       if (templastSendedMessage[msg.chat.id]) {
         bot

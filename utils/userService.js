@@ -1,66 +1,63 @@
 import fs from "fs/promises";
 import { logToFile } from "./logger.js";
 
-export async function loadUserData() {
+const FILE_PATH = "users.json";
+
+export async function readUsers() {
   try {
-    return JSON.parse(await fs.readFile("users.json", "utf-8"));
+    const data = await fs.readFile(FILE_PATH, "utf-8");
+    return JSON.parse(data);
   } catch (error) {
-    logToFile(`❌ Failed to load user data: ${error.message}`);
+    logToFile(`❌ Failed to read user data: ${error.message}`);
+    return { users: [] };
   }
 }
 
-const userData = await loadUserData();
+async function writeUsers(users) {
+  try {
+    await fs.writeFile(FILE_PATH, JSON.stringify({ users }, null, 2), "utf-8");
+  } catch (error) {
+    logToFile(`❌ Failed to write user data: ${error.message}`);
+  }
+}
 
-export const findUser = (id) => userData.users.find((user) => user.id === id);
+export async function findUser(id) {
+  const { users } = await readUsers();
+  return users.find((user) => user.id === id);
+}
 
 export async function saveUserProfile(userInfo) {
-  try {
-    if (!userData.users.some((user) => user.id === userInfo.id)) {
-      userInfo.notifications = { enabled: false, pollution_level: "Moderate" };
-      userInfo.geolocation = { name: "none" };
-      userData.users.push(userInfo);
-      await fs.writeFile(
-        "users.json",
-        JSON.stringify(userData, null, 2),
-        "utf-8"
-      );
-      logToFile(
-        `✅ User profile saved: ${userInfo.first_name}, id:${userInfo.id}`
-      );
-    } else {
-      logToFile(
-        `ℹ️ User profile exists: ${userInfo.first_name}, id:${userInfo.id}`
-      );
-    }
-  } catch (error) {
-    logToFile(`❌ User profile saving Error: ${error.message}`);
+  const data = await readUsers();
+  const exists = data.users.some((user) => user.id === userInfo.id);
+
+  if (!exists) {
+    userInfo.notifications = { enabled: false, pollution_level: "Moderate" };
+    userInfo.geolocation = { name: "none" };
+    data.users.push(userInfo);
+    await writeUsers(data.users);
+    logToFile(
+      `✅ User profile saved: ${userInfo.first_name}, id:${userInfo.id}`
+    );
+  } else {
+    logToFile(
+      `ℹ️ User profile exists: ${userInfo.first_name}, id:${userInfo.id}`
+    );
   }
 }
 
 export async function saveUserData(user_id, newUserData, dataTopic) {
-  try {
-    const user = findUser(user_id);
+  const data = await readUsers();
+  const user = data.users.find((u) => u.id === user_id);
 
-    if (user) {
-      user[dataTopic] = {
-        ...user[dataTopic],
-        ...newUserData, // обновляем или добавляем только нужные поля
-      };
-      await fs.writeFile(
-        "users.json",
-        JSON.stringify(userData, null, 2),
-        "utf-8"
-      );
-      logToFile(
-        `✅ Settings saved for user: ${user.first_name}, id:${user.id}`
-      );
-    } else {
-      logToFile(
-        `⚠️ User was not found, while saving settings: ${user.first_name}, id:${user.id}`
-      );
-    }
-  } catch (error) {
-    logToFile(`❌ Settings saving Error: ${error.message}`);
+  if (user) {
+    user[dataTopic] = {
+      ...user[dataTopic],
+      ...newUserData,
+    };
+    await writeUsers(data.users);
+    logToFile(`✅ Settings saved for user: ${user.first_name}, id:${user.id}`);
+  } else {
+    logToFile(`⚠️ User not found while saving settings, id:${user_id}`);
   }
 }
 
