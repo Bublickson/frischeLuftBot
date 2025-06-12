@@ -9,16 +9,14 @@ export async function loadUserData() {
   }
 }
 
-export async function findUser(id) {
-  const userData = await loadUserData();
-  return userData.users.find((user) => user.id === id);
-}
+const userData = await loadUserData();
+
+export const findUser = (id) => userData.users.find((user) => user.id === id);
 
 export async function saveUserProfile(userInfo) {
-  const userData = await loadUserData();
   try {
     if (!userData.users.some((user) => user.id === userInfo.id)) {
-      userInfo.notifications = { enabled: false, pollution_level: "moderate" };
+      userInfo.notifications = { enabled: false, pollution_level: "Moderate" };
       userInfo.geolocation = { name: "none" };
       userData.users.push(userInfo);
       await fs.writeFile(
@@ -27,7 +25,6 @@ export async function saveUserProfile(userInfo) {
         "utf-8"
       );
       console.log("✅ User profile saved:", userInfo);
-      logToFile(`✅ User profile saved: ${userInfo}`);
     } else {
       console.log("ℹ️ User profile exists:", userInfo.id);
     }
@@ -37,9 +34,8 @@ export async function saveUserProfile(userInfo) {
 }
 
 export async function saveUserData(user_id, newUserData, dataTopic) {
-  const userData = await loadUserData();
   try {
-    const user = await findUser(user_id);
+    const user = findUser(user_id);
 
     if (user) {
       user[dataTopic] = {

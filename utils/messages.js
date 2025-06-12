@@ -89,10 +89,6 @@ const pollutionLevelsEmoji = {
 export async function getAirData(stationID) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;
 
-  if (!stationID) {
-    return "Please use /location to set up your station location";
-  }
-
   const response = await axios.get(
     `https://api.waqi.info/feed/@${stationID}/?token=${aqicnAPI}`
   );
@@ -109,6 +105,9 @@ export async function airQualityNotifications(
   notifications,
   lastAirLevel
 ) {
+  if (!stationID) {
+    return "Please use /location to set up your station location";
+  }
   const response = await getAirData(stationID);
   if (response.data.aqi >= pollutionLevels[notifications.pollution_level]) {
     return [
@@ -132,6 +131,10 @@ export async function airQualityNotifications(
 }
 
 export async function airQualityInformation(stationID, response) {
+  if (!stationID) {
+    return "Please use /location to set up your station location";
+  }
+
   response ??= await getAirData(stationID);
 
   const data = response.data;
