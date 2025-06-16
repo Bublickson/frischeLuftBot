@@ -95,8 +95,8 @@ bot.on("callback_query", async (callbackQuery) => {
   const msg = callbackQuery.message;
   const data = callbackQuery.data;
   let user = await findUser(msg.chat.id);
+
   if (data === "notify_pollution_level") {
-    user = await findUser(msg.chat.id);
     const { text } = getNotificationMessage(user);
 
     const options = {

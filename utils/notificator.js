@@ -2,18 +2,20 @@ import cron from "node-cron";
 import { readUsers } from "./userService.js";
 import { airQualityNotifications } from "./messages.js";
 import { bot } from "../server.js";
+import { logToFile } from "./logger.js";
 
 const lastAirLevels = {}; // Храним по user.id
 
 export async function testNotifications() {
-  cron.schedule("0 * * * *", async () => {
+  cron.schedule("*/10 * * * * *", async () => {
     const usersData = await readUsers();
 
     for (const user of usersData.users) {
+      console.log(user);
       if (user.notifications.enabled) {
+        console.log(user.first_name);
         const airData = await airQualityNotifications(
-          user.geolocation.stationID,
-          user.notifications,
+          user,
           lastAirLevels[user.id]
         );
 
@@ -24,12 +26,12 @@ export async function testNotifications() {
             parse_mode: "Markdown",
           });
 
-          console.log(
-            `Сообщение отправлено: ${user.first_name}, ${airData[1]}`
+          logToFile(
+            `✅ Message send to: ${user.first_name}, id:${user.id}, ${airData[1]}`
           );
         } else {
-          console.log(
-            `Не отправлено (${user.first_name}): тот же уровень AQI (${airData[1]})`
+          logToFile(
+            `❌ Message not send to: ${user.first_name}, id:${user.id} the same AQI level(${airData[1]})`
           );
         }
       }

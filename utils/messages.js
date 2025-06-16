@@ -1,5 +1,6 @@
 import axios from "axios";
 import dayjs from "dayjs";
+import { logToFile } from "./logger.js";
 
 export const START_MESSAGE = `
 *Welcome!* 👋
@@ -100,33 +101,42 @@ export async function getAirData(stationID) {
   return response.data;
 }
 
-export async function airQualityNotifications(
-  stationID,
-  notifications,
-  lastAirLevel
-) {
-  if (!stationID) {
+export async function airQualityNotifications(user, lastAirLevel = "Good") {
+  if (!user.geolocation.stationID) {
     return "Please use /location to set up your station location";
   }
-  const response = await getAirData(stationID);
-  if (response.data.aqi >= pollutionLevels[notifications.pollution_level]) {
-    return [
-      await airQualityInformation(null, response),
-      airDescription(response.data.aqi),
-    ];
-  } else if (
-    response.data.aqi <= pollutionLevels[notifications.pollution_level] &&
-    lastAirLevel != "lower level" &&
-    lastAirLevel != undefined
+  const response = await getAirData(user.geolocation.stationID);
+
+  if (
+    response.data.aqi >= pollutionLevels[user.notifications.pollution_level]
   ) {
-    console.log("Отработанно когда ниже уровень загрезнение");
+    if (pollutionLevels[lastAirLevel] < response.data.aqi) {
+      return [
+        "⚠️ *Attention, the air quality has worsened.* ⚠️\n\n We will notify you when it returns to a normal level." +
+          (await airQualityInformation(user.geolocation.stationID, response)),
+        airDescription(response.data.aqi),
+      ];
+    } else {
+      logToFile(
+        `❌ Качество воздуха, ниже чем самый высокий отправленный уровень, у пользователя ${user.first_name}, id:${user.id}`
+      );
+    }
+  } else if (
+    response.data.aqi <= pollutionLevels[user.notifications.pollution_level] &&
+    lastAirLevel != "Good"
+  ) {
+    logToFile(
+      `✅ Отработанно когда ниже уровень загрезнение, у пользователя ${user.first_name}, id:${user.id}`
+    );
     return [
       "✅ *Air quality has returned to desired level*" +
-        (await airQualityInformation(null, response)),
-      "lower level",
+        (await airQualityInformation(user.geolocation.stationID, response)),
+      "Good",
     ];
   } else {
-    console.log("Ничего не отработанно");
+    logToFile(
+      `❌ Не одно условие не сработало, у пользователя ${user.first_name}, id:${user.id}`
+    );
   }
 }
 
