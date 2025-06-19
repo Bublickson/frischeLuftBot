@@ -19,6 +19,16 @@ I'll notify you if the air quality in your area falls below your chosen threshol
 *You can easily manage notifications with — /notifications*
   `;
 
+export const GEOLOCATION_DESKTOP_MESSAGE = `
+1️⃣ *Click* on the 📎 _paperclip icon_ at the bottom of the chat.
+
+2️⃣ *Select* _Location_ from the menu.
+
+3️⃣ *Choose* your current or any desired location and send it.
+
+📍 Once your location is received, it will be automatically processed to find the nearest air quality monitoring station.
+`;
+
 export function getNotificationMessage(user) {
   const level = user.notifications.pollution_level;
   const aqiThreshold = pollutionLevels[level];

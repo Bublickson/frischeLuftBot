@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import {
   START_MESSAGE,
+  GEOLOCATION_DESKTOP_MESSAGE,
   getNotificationMessage,
   airQualityInformation,
 } from "./utils/messages.js";
@@ -89,6 +90,28 @@ bot.onText("/notifications", async (msg) => {
         );
       });
   }
+});
+
+bot.onText("/location", (msg) => {
+  bot.sendMessage(msg.chat.id, "Please share your location:", {
+    reply_markup: {
+      keyboard: [
+        [
+          {
+            text: "🖥 Send location manually (Desktop and Mobile devices)",
+          },
+        ],
+        [
+          {
+            text: "📱 Send location automatically (Mobile only)",
+            request_location: true,
+          },
+        ],
+      ],
+      resize_keyboard: true,
+      one_time_keyboard: true,
+    },
+  });
 });
 
 bot.on("callback_query", async (callbackQuery) => {
@@ -216,25 +239,18 @@ bot.on("callback_query", async (callbackQuery) => {
   });
 });
 
-bot.onText("/location", (msg) => {
-  bot.sendMessage(msg.chat.id, "Пожалуйста, отправь своё местоположение:", {
-    reply_markup: {
-      keyboard: [
-        [
-          {
-            text: "📍 Отправить местоположение",
-            request_location: true,
-          },
-        ],
-      ],
-      resize_keyboard: true,
-      one_time_keyboard: true,
-    },
-  });
-});
-
 bot.on("message", async (msg) => {
   delete templastSendedMessage[msg.chat.id];
+  if (msg.text === "🖥 Send location manually (Desktop and Mobile devices)") {
+    await bot.sendMessage(msg.chat.id, GEOLOCATION_DESKTOP_MESSAGE, {
+      parse_mode: "Markdown",
+      reply_markup: {
+        remove_keyboard: true,
+      },
+    });
+    return;
+  }
+
   if (msg.location) {
     try {
       const { latitude, longitude } = msg.location;
