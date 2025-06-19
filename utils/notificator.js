@@ -9,7 +9,6 @@ const lastAirLevels = {}; // Храним по user.id
 export async function testNotifications() {
   cron.schedule("*/10 * * * * *", async () => {
     const usersData = await readUsers();
-    console.log(lastAirLevels);
 
     for (const user of usersData.users) {
       try {
@@ -42,8 +41,11 @@ export async function testNotifications() {
         logToFile(
           `✅ Message send to: ${user.first_name}, id:${user.id}, ${newLevel}`
         );
-      } catch (err) {
-        console.error(`Ошибка при обработке ${user.first_name}:`, err);
+      } catch (error) {
+        logToFile(
+          `❌ Ошибка при обработке: ${user.first_name}, id:${user.id}`,
+          error.message
+        );
       }
     }
   });

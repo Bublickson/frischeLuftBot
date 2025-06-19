@@ -1,4 +1,5 @@
 import axios from "axios";
+import { logToFile } from "./logger.js";
 
 export async function Geolocation(lat, lng, distance) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;
@@ -21,16 +22,17 @@ export async function Geolocation(lat, lng, distance) {
     `https://api.waqi.info/v2/map/bounds?latlng=${south},${west},${north},${east}&networks=all&token=${aqicnAPI}`
   );
 
+  if (response.data.status !== "ok") {
+    const errorMessage = `❌ Некорректный ответ API: ${JSON.stringify(
+      response.data
+    )}`;
+    throw new Error(errorMessage);
+  }
+
   return findClosestStations(lat, lng, response.data);
 }
 
 function findClosestStations(userLat, userLng, apiResponse) {
-  // Проверяем статус ответа
-  if (apiResponse.status !== "ok" || !Array.isArray(apiResponse.data)) {
-    console.error("Некорректный ответ API");
-    return [];
-  }
-
   // Добавляем расстояние к каждой станции
   const stations = apiResponse.data.map((station) => {
     const distance = calculateDistance(

@@ -1,6 +1,7 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import { logToFile } from "./logger.js";
+import { resolveInclude } from "ejs";
 
 export const START_MESSAGE = `
 *Welcome!* 👋
@@ -94,8 +95,11 @@ export async function getAirData(stationID) {
     `https://api.waqi.info/feed/@${stationID}/?token=${aqicnAPI}`
   );
 
-  if (response.data.data.status == "error") {
-    return "Unknown ID";
+  if (response.data.status !== "ok") {
+    const errorMessage = `❌ Некорректный ответ API: ${JSON.stringify(
+      response.data
+    )}`;
+    throw new Error(errorMessage);
   }
 
   return response.data;
