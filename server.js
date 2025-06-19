@@ -42,6 +42,13 @@ bot.onText("/start", async (msg) => {
 
 bot.onText(`/air`, async (msg) => {
   const user = await findUser(msg.chat.id);
+  if (!user) {
+    bot.sendMessage(
+      msg.chat.id,
+      `Please start the bot with /start before using this command.`
+    );
+    return;
+  }
   logToFile(`User ${user.first_name} requested air quality data.`);
 
   try {
@@ -65,6 +72,13 @@ bot.onText(`/air`, async (msg) => {
 
 bot.onText("/notifications", async (msg) => {
   const user = await findUser(msg.chat.id);
+  if (!user) {
+    bot.sendMessage(
+      msg.chat.id,
+      `Please start the bot with /start before using this command.`
+    );
+    return;
+  }
   const { text, options } = getNotificationMessage(user);
 
   if (user.geolocation.stationID) {
@@ -118,6 +132,13 @@ bot.on("callback_query", async (callbackQuery) => {
   const msg = callbackQuery.message;
   const data = callbackQuery.data;
   let user = await findUser(msg.chat.id);
+  if (!user) {
+    bot.sendMessage(
+      msg.chat.id,
+      `Please start the bot with /start before using this command.`
+    );
+    return;
+  }
 
   if (data === "notify_pollution_level") {
     const { text } = getNotificationMessage(user);

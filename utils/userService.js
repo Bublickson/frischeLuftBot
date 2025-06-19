@@ -23,9 +23,15 @@ async function writeUsers(users) {
 
 export async function findUser(id) {
   const { users } = await readUsers();
-  return users.find((user) => user.id === id);
-}
+  const user = users.find((user) => user.id === id);
 
+  if (!user) {
+    logToFile(`⚠️ User with id ${id} not found in database`);
+    return null;
+  }
+
+  return user;
+}
 export async function saveUserProfile(userInfo) {
   const data = await readUsers();
   const exists = data.users.some((user) => user.id === userInfo.id);
