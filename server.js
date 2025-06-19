@@ -181,11 +181,14 @@ bot.on("callback_query", async (callbackQuery) => {
     const geoData = tempGeoData[msg.chat.id][parseInt(data) - 1];
     await saveUserData(msg.chat.id, geoData, "geolocation");
 
-    bot.editMessageText(`You have picked: *${geoData.name}*`, {
-      chat_id: msg.chat.id,
-      message_id: msg.message_id, // ID сообщения, которое нужно обновить
-      parse_mode: "Markdown",
-    });
+    bot.editMessageText(
+      `🌍 You have successfully selected: *${geoData.name}*`,
+      {
+        chat_id: msg.chat.id,
+        message_id: msg.message_id, // ID сообщения, которое нужно обновить
+        parse_mode: "Markdown",
+      }
+    );
 
     delete tempGeoData[msg.chat.id];
   }
@@ -256,15 +259,9 @@ bot.on("message", async (msg) => {
       const { latitude, longitude } = msg.location;
       const geoData = await Geolocation(latitude, longitude, 20);
 
-      await bot.sendMessage(msg.chat.id, "Спасибо! Местоположение получено.", {
-        reply_markup: {
-          remove_keyboard: true,
-        },
-      });
-
       setTimeout(() => {
         try {
-          let text = "Пожалуйста, выберите станцию:\n\n";
+          let text = "📡 Please select an air quality monitoring station \n\n";
           geoData.forEach((station, index) => {
             text += `${index + 1}. ${station.name}: \n distance: *${
               station.distance
@@ -279,9 +276,9 @@ bot.on("message", async (msg) => {
               reply_markup: {
                 inline_keyboard: [
                   [
-                    { text: "1", callback_data: "1" },
-                    { text: "2", callback_data: "2" },
-                    { text: "3", callback_data: "3" },
+                    { text: "1️⃣", callback_data: "1" },
+                    { text: "2️⃣", callback_data: "2" },
+                    { text: "3️⃣", callback_data: "3" },
                   ],
                 ],
               },
