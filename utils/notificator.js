@@ -9,10 +9,14 @@ const lastAirLevels = {}; // Храним по user.id
 export async function testNotifications() {
   cron.schedule("*/10 * * * * *", async () => {
     const usersData = await readUsers();
+    console.log(lastAirLevels);
 
     for (const user of usersData.users) {
       try {
-        if (!user.notifications.enabled) continue;
+        if (!user.notifications.enabled) {
+          delete lastAirLevels[user.id];
+          continue;
+        }
 
         const [message, newLevel] = await airQualityNotifications(
           user,
