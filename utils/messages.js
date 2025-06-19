@@ -102,9 +102,6 @@ export async function getAirData(stationID) {
 }
 
 export async function airQualityNotifications(user, lastAirLevel = "Good") {
-  if (!user.geolocation.stationID) {
-    return "Please use /location to set up your station location";
-  }
   const response = await getAirData(user.geolocation.stationID);
 
   if (
@@ -138,6 +135,7 @@ export async function airQualityNotifications(user, lastAirLevel = "Good") {
       `❌ Не одно условие не сработало, у пользователя ${user.first_name}, id:${user.id}`
     );
   }
+  return [null, null];
 }
 
 export async function airQualityInformation(stationID, response) {

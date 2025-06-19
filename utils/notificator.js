@@ -11,29 +11,35 @@ export async function testNotifications() {
     const usersData = await readUsers();
 
     for (const user of usersData.users) {
-      console.log(user);
-      if (user.notifications.enabled) {
-        console.log(user.first_name);
-        const airData = await airQualityNotifications(
+      try {
+        if (!user.notifications.enabled) continue;
+
+        const [message, newLevel] = await airQualityNotifications(
           user,
           lastAirLevels[user.id]
         );
 
-        if (airData[0] && airData[1] !== lastAirLevels[user.id]) {
-          lastAirLevels[user.id] = airData[1];
+        if (message === null && newLevel === null) continue;
 
-          bot.sendMessage(user.id, airData[0], {
-            parse_mode: "Markdown",
-          });
-
+        if (newLevel === lastAirLevels[user.id]) {
           logToFile(
-            `✅ Message send to: ${user.first_name}, id:${user.id}, ${airData[1]}`
+            `❌ Message not send to: ${user.first_name}, id:${user.id} – same AQI level (${newLevel})`
           );
-        } else {
-          logToFile(
-            `❌ Message not send to: ${user.first_name}, id:${user.id} the same AQI level(${airData[1]})`
-          );
+          continue;
         }
+
+        // Если есть сообщение и уровень изменился — отправляем
+        lastAirLevels[user.id] = newLevel;
+
+        bot.sendMessage(user.id, message, {
+          parse_mode: "Markdown",
+        });
+
+        logToFile(
+          `✅ Message send to: ${user.first_name}, id:${user.id}, ${newLevel}`
+        );
+      } catch (err) {
+        console.error(`Ошибка при обработке ${user.first_name}:`, err);
       }
     }
   });
