@@ -277,12 +277,19 @@ bot.on("message", async (msg) => {
 
   if (msg.location) {
     try {
+      const inlineKeyboardOptions = [
+        { text: "1️⃣", callback_data: "1" },
+        { text: "2️⃣", callback_data: "2" },
+        { text: "3️⃣", callback_data: "3" },
+      ];
       const { latitude, longitude } = msg.location;
       const geoData = await Geolocation(latitude, longitude, 20);
 
       setTimeout(() => {
         try {
-          let text = "📡 Please select an air quality monitoring station \n\n";
+          let text = geoData.length
+            ? `📡 Please select an air quality monitoring station \n\n`
+            : `⚠️ *No nearby stations found!* \n\nUnfortunately, there are no air quality monitoring stations within a *20 km* radius of your location.\n\n🌍Please try sharing a different /location.`;
           geoData.forEach((station, index) => {
             text += `${index + 1}. ${station.name}: \n distance: *${
               station.distance
@@ -291,27 +298,15 @@ bot.on("message", async (msg) => {
 
           tempGeoData[msg.chat.id] = geoData;
 
-          bot
-            .sendMessage(msg.chat.id, text, {
-              parse_mode: "Markdown",
-              reply_markup: {
-                inline_keyboard: [
-                  [
-                    { text: "1️⃣", callback_data: "1" },
-                    { text: "2️⃣", callback_data: "2" },
-                    { text: "3️⃣", callback_data: "3" },
-                  ],
-                ],
-              },
-            })
-            .catch((err) => {
-              logToFile(
-                `Error sending station selection to ${msg.chat.id}: ${err.message}`
-              );
-            });
+          bot.sendMessage(msg.chat.id, text, {
+            parse_mode: "Markdown",
+            reply_markup: {
+              inline_keyboard: [inlineKeyboardOptions.slice(0, geoData.length)],
+            },
+          });
         } catch (error) {
           logToFile(
-            `Error inside setTimeout for user ${msg.chat.id}: ${error.message}`
+            `Error sending station selection to ${msg.chat.id}: ${error.message}`
           );
         }
       }, 500);
