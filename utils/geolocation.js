@@ -1,7 +1,7 @@
 import axios from "axios";
 import { logToFile } from "./logger.js";
 
-export async function Geolocation(lat, lng, distance) {
+export async function geolocation(lat, lng, distance) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;
   const kmPerDegreeLat = 111.32; // перевод градусов широты в километры
 

@@ -15,8 +15,8 @@ import {
   saveUserData,
 } from "./utils/userService.js";
 
-import { Geolocation } from "./utils/geolocation.js";
-import { testNotifications } from "./utils/notificator.js";
+import { geolocation } from "./utils/geolocation.js";
+import { notifications } from "./utils/notificator.js";
 import { logToFile } from "./utils/logger.js";
 
 dotenv.config();
@@ -33,15 +33,14 @@ export const bot = new TelegramBot(telegramAPI, { polling: true });
 const tempGeoData = {};
 const templastSendedMessage = {};
 
-testNotifications();
-
+notifications();
 bot.onText("/start", async (msg) => {
   bot.sendMessage(msg.chat.id, START_MESSAGE, { parse_mode: "Markdown" });
-  await saveUserProfile(msg.chat);
+  saveUserProfile(msg.chat);
 });
 
 bot.onText(`/air`, async (msg) => {
-  const user = await findUser(msg.chat.id);
+  const user = findUser(msg.chat.id);
   if (!user) {
     bot.sendMessage(
       msg.chat.id,
@@ -71,7 +70,7 @@ bot.onText(`/air`, async (msg) => {
 });
 
 bot.onText("/notifications", async (msg) => {
-  const user = await findUser(msg.chat.id);
+  const user = findUser(msg.chat.id);
   if (!user) {
     bot.sendMessage(
       msg.chat.id,
@@ -131,7 +130,7 @@ bot.onText("/location", (msg) => {
 bot.on("callback_query", async (callbackQuery) => {
   const msg = callbackQuery.message;
   const data = callbackQuery.data;
-  let user = await findUser(msg.chat.id);
+  let user = findUser(msg.chat.id);
   if (!user) {
     bot.sendMessage(
       msg.chat.id,
@@ -200,7 +199,7 @@ bot.on("callback_query", async (callbackQuery) => {
     (data === "1" || data === "2" || data === "3")
   ) {
     const geoData = tempGeoData[msg.chat.id][parseInt(data) - 1];
-    await saveUserData(msg.chat.id, geoData, "geolocation");
+    saveUserData(msg.chat.id, geoData, "geolocation");
 
     bot.editMessageText(
       `🌍 You have successfully selected: *${geoData.name}*`,
@@ -226,8 +225,8 @@ bot.on("callback_query", async (callbackQuery) => {
     const settingsKey = Object.keys(optionsSettings[data]);
     const settingsValue = optionsSettings[data][settingsKey];
     if (user.notifications[settingsKey] !== settingsValue) {
-      await saveUserData(msg.chat.id, optionsSettings[data], "notifications");
-      user = await findUser(msg.chat.id);
+      saveUserData(msg.chat.id, optionsSettings[data], "notifications");
+      user = findUser(msg.chat.id);
       const { text, options } = getNotificationMessage(user);
       if (templastSendedMessage[msg.chat.id]) {
         bot
@@ -283,7 +282,7 @@ bot.on("message", async (msg) => {
         { text: "3️⃣", callback_data: "3" },
       ];
       const { latitude, longitude } = msg.location;
-      const geoData = await Geolocation(latitude, longitude, 20);
+      const geoData = await geolocation(latitude, longitude, 20);
 
       setTimeout(() => {
         try {

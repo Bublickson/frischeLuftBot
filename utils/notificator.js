@@ -1,14 +1,14 @@
 import cron from "node-cron";
-import { readUsers } from "./userService.js";
+import { readUsersSync } from "./userService.js";
 import { airQualityNotifications } from "./messages.js";
 import { bot } from "../server.js";
 import { logToFile } from "./logger.js";
 
 const lastAirLevels = {}; // Храним по user.id
 
-export async function testNotifications() {
+export async function notifications() {
   cron.schedule("*/10 * * * * *", async () => {
-    const usersData = await readUsers();
+    const usersData = readUsersSync();
 
     for (const user of usersData.users) {
       try {
