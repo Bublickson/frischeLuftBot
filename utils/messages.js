@@ -4,23 +4,25 @@ import { logToFile } from "./logger.js";
 import { resolveInclude } from "ejs";
 
 export const START_MESSAGE = `
-*Welcome!* 👋
-I'm your personal Air Quality Bot. Here's what I can do for you:
+🌿 *Welcome* to the FrischeLuft Bot.
 
-*1. 🌍 Find the nearest air quality station:*
-*Using your /location*, I can detect the closest station to monitor the air quality in your area. You can also manually select the nearest stations if you prefer.
+This service provides up-to-date information about air quality in your area and helps you stay informed about potential environmental risks.
 
-*2. 💨 Provide real-time air quality data:*
-Get the latest air quality information for your area. 
-*You can do this with /air*
+ℹ️ Use */help* to learn how to use this bot.
+`;
+export const INFO_MESSAGE = `
+🌍 Set your /location
+Find the nearest air quality monitoring station for accurate, localized data.
 
-*3. 🔔 Send notifications when air quality drops:*
-I'll notify you if the air quality in your area falls below your chosen threshold. 
-*You can easily manage notifications with — /notifications*
+🔔 Enable /notifications
+Receive timely alerts when air quality drops in your area. The notification system is adjustable to your preferences.
+
+💨 Check current /air quality
+Get the latest air quality index and key indicators.
   `;
 
 export const GEOLOCATION_DESKTOP_MESSAGE = `
-1️⃣ *Click* on the 📎 _paperclip icon_ at the bottom of the chat.
+1️⃣ *Click* on the 📎 paperclip icon at the bottom of the chat.
 
 2️⃣ *Select* _Location_ from the menu.
 
@@ -36,8 +38,8 @@ export function getNotificationMessage(user) {
   const isEnabled = user.notifications.enabled;
 
   const notificationInfo = isEnabled
-    ? `📬 You will receive notifications if the *AQI level* exceeds *${aqiThreshold}*`
-    : `🚫 You will not receive any notifications.`;
+    ? `📬 You will receive notifications if the AQI level exceeds *${aqiThreshold}*`
+    : `🚫 You will not receive notifications.`;
 
   const text =
     `🔔 *Notification Settings*\n\n` +
@@ -52,11 +54,13 @@ export function getNotificationMessage(user) {
       inline_keyboard: [
         [
           { text: "🟢 Turn on", callback_data: "notify_on" },
+          { text: "🔴 Turn off", callback_data: "notify_off" },
+        ],
+        [
           {
             text: "📊 Pollution Level",
             callback_data: "notify_pollution_level",
           },
-          { text: "🔴 Turn off", callback_data: "notify_off" },
         ],
       ],
     },
@@ -66,17 +70,17 @@ export function getNotificationMessage(user) {
 
 export function airDescription(aqi) {
   switch (true) {
-    case aqi > 300:
+    case aqi >= 300:
       return "Hazardous";
-    case aqi >= 201:
+    case aqi >= 200:
       return "Very Unhealthy";
-    case aqi >= 151:
+    case aqi >= 150:
       return "Unhealthy";
-    case aqi >= 101:
+    case aqi >= 100:
       return "Sensitive Groups";
-    case aqi >= 51:
+    case aqi >= 50:
       return "Moderate";
-    case aqi <= 50:
+    case aqi < 50:
       return "Good";
     default:
       return "Unknown type";
@@ -85,10 +89,10 @@ export function airDescription(aqi) {
 
 const pollutionLevels = {
   Good: 0,
-  Moderate: 51,
-  "Sensitive Groups": 101,
-  Unhealthy: 151,
-  "Very Unhealthy": 201,
+  Moderate: 50,
+  "Sensitive Groups": 100,
+  Unhealthy: 150,
+  "Very Unhealthy": 200,
   Hazardous: 300,
 };
 
@@ -133,7 +137,7 @@ export async function airQualityNotifications(user, lastAirLevel = "Good") {
       );
     }
   } else if (
-    response.data.aqi <= pollutionLevels[user.notifications.pollution_level] &&
+    response.data.aqi < pollutionLevels[user.notifications.pollution_level] &&
     lastAirLevel != "Good"
   ) {
     logToFile(

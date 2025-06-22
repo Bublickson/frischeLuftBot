@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import {
   START_MESSAGE,
+  INFO_MESSAGE,
   GEOLOCATION_DESKTOP_MESSAGE,
   getNotificationMessage,
   airQualityInformation,
@@ -36,6 +37,11 @@ const templastSendedMessage = {};
 notifications();
 bot.onText("/start", async (msg) => {
   bot.sendMessage(msg.chat.id, START_MESSAGE, { parse_mode: "Markdown" });
+  saveUserProfile(msg.chat);
+});
+
+bot.onText("/help", async (msg) => {
+  bot.sendMessage(msg.chat.id, INFO_MESSAGE, { parse_mode: "Markdown" });
   saveUserProfile(msg.chat);
 });
 
@@ -111,7 +117,7 @@ bot.onText("/location", (msg) => {
       keyboard: [
         [
           {
-            text: "🖥 Send location manually (Desktop and Mobile devices)",
+            text: "🌍 Send location manually",
           },
         ],
         [
@@ -264,7 +270,7 @@ bot.on("callback_query", async (callbackQuery) => {
 
 bot.on("message", async (msg) => {
   delete templastSendedMessage[msg.chat.id];
-  if (msg.text === "🖥 Send location manually (Desktop and Mobile devices)") {
+  if (msg.text === "🌍 Send location manually") {
     await bot.sendMessage(msg.chat.id, GEOLOCATION_DESKTOP_MESSAGE, {
       parse_mode: "Markdown",
       reply_markup: {
