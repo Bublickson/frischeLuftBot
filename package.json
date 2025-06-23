@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "watch": "NTBA_FIX_350=true node --watch server.js"
+    "watch": "NTBA_FIX_350=true node --watch server.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:restart": "pm2 restart ecosystem.config.cjs",
+    "pm2:stop": "pm2 stop ecosystem.config.cjs"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +19,6 @@
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
-    "ejs": "^3.1.10",
     "express": "^4.21.2",
     "node-cron": "^3.0.3",
     "node-telegram-bot-api": "^0.66.0"

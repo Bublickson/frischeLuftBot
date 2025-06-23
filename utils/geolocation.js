@@ -1,5 +1,4 @@
 import axios from "axios";
-import { logToFile } from "./logger.js";
 
 export async function geolocation(lat, lng, distance) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;

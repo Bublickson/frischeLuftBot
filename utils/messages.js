@@ -1,7 +1,6 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import { logToFile } from "./logger.js";
-import { resolveInclude } from "ejs";
 
 export const START_MESSAGE = `
 🌿 *Welcome* to the FrischeLuft Bot.
