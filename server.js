@@ -1,4 +1,3 @@
-import express from "express";
 import TelegramBot from "node-telegram-bot-api";
 import dotenv from "dotenv";
 
@@ -21,17 +20,14 @@ import { notifications } from "./utils/notificator.js";
 import { logToFile } from "./utils/logger.js";
 
 dotenv.config();
-const app = express();
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
 
 const telegramAPI = process.env.TELEGRAM_API_TOKEN;
 
-const PORT = 3000;
 export const bot = new TelegramBot(telegramAPI, { polling: true });
 const tempGeoData = {};
 const templastSendedMessage = {};
+
+console.log("Сообщение с restart");
 
 notifications();
 bot.onText("/start", async (msg) => {
@@ -68,8 +64,8 @@ bot.onText(`/air`, async (msg) => {
       msg.chat.id,
       "Failed to retrieve air quality data. Please try again later."
     );
-    logToFile(
-      `Error fetching air quality for user ${user.first_name}, ${msg.chat.id}: ${error.message}`
+    console.error(
+      `Error fetching air quality for user ${user.first_name}, ${msg.chat.id}: ${error}`
     );
   }
 });
@@ -92,8 +88,8 @@ bot.onText("/notifications", async (msg) => {
         templastSendedMessage[msg.chat.id] = sentedMessage.message_id;
       })
       .catch((error) => {
-        logToFile(
-          `Error sending notifications message for user ${user.first_name}, ${msg.chat.id}: ${error.message}`
+        console.error(
+          `Error sending notifications message for user ${user.first_name}, ${msg.chat.id}: ${error}`
         );
       });
   } else {
@@ -103,8 +99,8 @@ bot.onText("/notifications", async (msg) => {
         `Please use /location to set up your station location`
       )
       .catch((error) => {
-        logToFile(
-          `Error sending location prompt for user ${user.first_name}, ${msg.chat.id}: ${error.message}`
+        console.error(
+          `Error sending location prompt for user ${user.first_name}, ${msg.chat.id}: ${error}`
         );
       });
   }
@@ -181,8 +177,8 @@ bot.on("callback_query", async (callbackQuery) => {
           reply_markup: options.reply_markup,
         })
         .catch((error) => {
-          logToFile(
-            `Error while editing a message for ${user.first_name}, ${msg.chat.id}, in ${data}: ${error.message}`
+          console.error(
+            `Error while editing a message for ${user.first_name}, ${msg.chat.id}, in ${data}: ${error}`
           );
         });
     } else {
@@ -192,8 +188,8 @@ bot.on("callback_query", async (callbackQuery) => {
           templastSendedMessage[msg.chat.id] = sentedMessage.message_id;
         })
         .catch((error) => {
-          logToFile(
-            `Error while sending a message for ${user.first_name}, ${msg.chat.id} in ${data}: ${error.message}`
+          console.error(
+            `Error while sending a message for ${user.first_name}, ${msg.chat.id} in ${data}: ${error}`
           );
         });
     }
@@ -242,8 +238,8 @@ bot.on("callback_query", async (callbackQuery) => {
             reply_markup: options.reply_markup,
           })
           .catch((error) => {
-            logToFile(
-              `Error while editing a message for ${user.first_name}, ${msg.chat.id}, in ${data}: ${error.message}`
+            console.error(
+              `Error while editing a message for ${user.first_name}, ${msg.chat.id}, in ${data}: ${error}`
             );
           });
       } else {
@@ -253,17 +249,15 @@ bot.on("callback_query", async (callbackQuery) => {
             templastSendedMessage[msg.chat.id] = sentedMessage.message_id;
           })
           .catch((error) => {
-            logToFile(
-              `Error while sending a message for ${user.first_name}, ${msg.chat.id}, in ${data}: ${error.message}`
+            console.error(
+              `Error while sending a message for ${user.first_name}, ${msg.chat.id}, in ${data}: ${error}`
             );
           });
       }
     }
   }
-  bot.answerCallbackQuery(callbackQuery.id).catch((err) => {
-    logToFile(
-      `Error in answerCallbackQuery for ${msg.chat.id}: ${err.message}`
-    );
+  bot.answerCallbackQuery(callbackQuery.id).catch((error) => {
+    console.error(`Error in answerCallbackQuery for ${msg.chat.id}: ${error}`);
   });
 });
 
@@ -309,19 +303,15 @@ bot.on("message", async (msg) => {
             },
           });
         } catch (error) {
-          logToFile(
-            `Error sending station selection to ${msg.chat.id}: ${error.message}`
+          console.error(
+            `Error sending station selection to ${msg.chat.id}: ${error}`
           );
         }
       }, 500);
     } catch (error) {
-      logToFile(
-        `Error handling location message for user ${msg.chat.id}: ${error.message}`
+      console.error(
+        `Error handling location message for user ${msg.chat.id}: ${error}`
       );
     }
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server started at http://localhost:${PORT}`);
 });

@@ -1,4 +1,4 @@
-import axios from "axios";
+import { axiosIPv4 } from "../api.js";
 import dayjs from "dayjs";
 import { logToFile } from "./logger.js";
 
@@ -104,7 +104,7 @@ const pollutionLevelsEmoji = {
 export async function getAirData(stationID) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;
 
-  const response = await axios.get(
+  const response = await axiosIPv4.get(
     `https://api.waqi.info/feed/@${stationID}/?token=${aqicnAPI}`
   );
 

@@ -8,9 +8,9 @@ const logFile = path.resolve("logs.txt");
 export function logToFile(message) {
   const timestamp = new Date().toLocaleString();
   const logMessage = `[${timestamp}] ${message}\n`;
-  fs.appendFile(logFile, logMessage, (err) => {
-    if (err) {
-      console.error("Ошибка при записи в лог:", err);
+  fs.appendFile(logFile, logMessage, (error) => {
+    if (error) {
+      console.error("Ошибка при записи в лог:", error);
     }
   });
 }

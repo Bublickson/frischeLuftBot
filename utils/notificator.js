@@ -42,9 +42,9 @@ export async function notifications() {
           `✅ Message send to: ${user.first_name}, id:${user.id}, ${newLevel}`
         );
       } catch (error) {
-        logToFile(
+        console.error(
           `❌ Ошибка при обработке: ${user.first_name}, id:${user.id}`,
-          error.message
+          error
         );
       }
     }

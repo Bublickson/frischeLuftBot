@@ -1,4 +1,4 @@
-import axios from "axios";
+import { axiosIPv4 } from "../api.js";
 
 export async function geolocation(lat, lng, distance) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;
@@ -17,11 +17,11 @@ export async function geolocation(lat, lng, distance) {
   const east = lng + deltaLng;
   const west = lng - deltaLng;
 
-  const response = await axios.get(
+  const response = await axiosIPv4.get(
     `https://api.waqi.info/v2/map/bounds?latlng=${south},${west},${north},${east}&networks=all&token=${aqicnAPI}`
   );
 
-  if (response.data.status !== "ok") {
+  if (response?.data?.status !== "ok") {
     const errorMessage = `❌ Некорректный ответ API: ${JSON.stringify(
       response.data
     )}`;
