@@ -27,8 +27,6 @@ export const bot = new TelegramBot(telegramAPI, { polling: true });
 const tempGeoData = {};
 const templastSendedMessage = {};
 
-console.log("Сообщение с restart");
-
 notifications();
 bot.onText("/start", async (msg) => {
   bot.sendMessage(msg.chat.id, START_MESSAGE, { parse_mode: "Markdown" });
