@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
   apps: [
     {
-      name: "firshe-luft-bot",
+      name: "frische-luft-bot",
       script: "./server.js",
     },
   ],
