@@ -17,7 +17,6 @@ import {
 
 import { geolocation } from "./utils/geolocation.js";
 import { notifications } from "./utils/notificator.js";
-import { logToFile } from "./utils/logger.js";
 
 dotenv.config();
 
@@ -47,7 +46,7 @@ bot.onText(`/air`, async (msg) => {
     );
     return;
   }
-  logToFile(`User ${user.first_name} requested air quality data.`);
+  console.log(`📥 User ${user.first_name} requested air quality data.`);
 
   try {
     const airData = await airQualityInformation(

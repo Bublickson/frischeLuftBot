@@ -1,6 +1,5 @@
 import { axiosIPv4 } from "../api.js";
 import dayjs from "dayjs";
-import { logToFile } from "./logger.js";
 
 export const START_MESSAGE = `
 🌿 *Welcome* to the FrischeLuft Bot.
@@ -124,33 +123,26 @@ export async function airQualityNotifications(user, lastAirLevel = "Good") {
   if (
     response.data.aqi >= pollutionLevels[user.notifications.pollution_level]
   ) {
-    if (pollutionLevels[lastAirLevel] < response.data.aqi) {
+    if (response.data.aqi >= pollutionLevels[lastAirLevel]) {
       return [
-        "⚠️ *Attention, the air quality has worsened.* ⚠️\n\n We will notify you when it returns to a normal level." +
+        "⚠️ *Attention, the air quality has worsened.* ⚠️\n\nWe will notify you when it returns to a normal level." +
           (await airQualityInformation(user.geolocation.stationID, response)),
         airDescription(response.data.aqi),
       ];
     } else {
-      logToFile(
-        `❌ Качество воздуха, ниже чем самый высокий отправленный уровень, у пользователя ${user.first_name}, id:${user.id}`
+      console.log(
+        `🟡 Air quality level is lower than the highest notified level for user ${user.first_name}, id:${user.id}`
       );
     }
   } else if (
     response.data.aqi < pollutionLevels[user.notifications.pollution_level] &&
     lastAirLevel != "Good"
   ) {
-    logToFile(
-      `✅ Отработанно когда ниже уровень загрезнение, у пользователя ${user.first_name}, id:${user.id}`
-    );
     return [
       "✅ *Air quality has returned to desired level*" +
         (await airQualityInformation(user.geolocation.stationID, response)),
       "Good",
     ];
-  } else {
-    logToFile(
-      `❌ Не одно условие не сработало, у пользователя ${user.first_name}, id:${user.id}`
-    );
   }
   return [null, null];
 }

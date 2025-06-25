@@ -2,12 +2,11 @@ import cron from "node-cron";
 import { readUsersSync } from "./userService.js";
 import { airQualityNotifications } from "./messages.js";
 import { bot } from "../server.js";
-import { logToFile } from "./logger.js";
 
 const lastAirLevels = {}; // Храним по user.id
 
 export async function notifications() {
-  cron.schedule("*/10 * * * * *", async () => {
+  cron.schedule("*/15 * * * *", async () => {
     const usersData = readUsersSync();
 
     for (const user of usersData.users) {
@@ -25,8 +24,8 @@ export async function notifications() {
         if (message === null && newLevel === null) continue;
 
         if (newLevel === lastAirLevels[user.id]) {
-          logToFile(
-            `❌ Message not send to: ${user.first_name}, id:${user.id} – same AQI level (${newLevel})`
+          console.log(
+            `🔁 Message not send to: ${user.first_name}, id:${user.id} – same AQI level (${newLevel})`
           );
           continue;
         }
@@ -38,12 +37,12 @@ export async function notifications() {
           parse_mode: "Markdown",
         });
 
-        logToFile(
+        console.log(
           `✅ Message send to: ${user.first_name}, id:${user.id}, ${newLevel}`
         );
       } catch (error) {
         console.error(
-          `❌ Ошибка при обработке: ${user.first_name}, id:${user.id}`,
+          `Error while processing notification for: ${user.first_name}, id:${user.id}`,
           error
         );
       }

@@ -1,5 +1,4 @@
 import fs from "fs";
-import { logToFile } from "./logger.js";
 
 const FILE_PATH = "users.json";
 
@@ -8,7 +7,7 @@ export function readUsersSync() {
     const data = fs.readFileSync(FILE_PATH, "utf-8");
     return JSON.parse(data);
   } catch (error) {
-    logToFile(`❌ Failed to read user data: ${error.message}`);
+    console.error(`Failed to read user data: ${error}`);
     return { users: [] };
   }
 }
@@ -17,7 +16,7 @@ function writeUsersSync(users) {
   try {
     fs.writeFileSync(FILE_PATH, JSON.stringify({ users }, null, 2), "utf-8");
   } catch (error) {
-    logToFile(`❌ Failed to write user data: ${error.message}`);
+    console.error(`Failed to write user data: ${error}`);
   }
 }
 
@@ -26,7 +25,7 @@ export function findUser(id) {
   const user = users.find((user) => user.id === id);
 
   if (!user) {
-    logToFile(`⚠️ User with id ${id} not found in database`);
+    console.log(`⚠️ User with id ${id} not found in database`);
     return null;
   }
 
@@ -42,12 +41,8 @@ export function saveUserProfile(userInfo) {
     userInfo.geolocation = { name: "none" };
     data.users.push(userInfo);
     writeUsersSync(data.users);
-    logToFile(
-      `✅ User profile saved: ${userInfo.first_name}, id:${userInfo.id}`
-    );
-  } else {
-    logToFile(
-      `ℹ️ User profile exists: ${userInfo.first_name}, id:${userInfo.id}`
+    console.log(
+      `💾 User profile saved: ${userInfo.first_name}, id:${userInfo.id}`
     );
   }
 }
@@ -62,8 +57,10 @@ export function saveUserData(user_id, newUserData, dataTopic) {
       ...newUserData,
     };
     writeUsersSync(data.users);
-    logToFile(`✅ Settings saved for user: ${user.first_name}, id:${user.id}`);
+    console.log(
+      `⚙️ Settings saved for user: ${user.first_name}, id:${user.id}`
+    );
   } else {
-    logToFile(`⚠️ User not found while saving settings, id:${user_id}`);
+    console.error(`⚠️ User not found while saving settings, id:${user_id}`);
   }
 }
