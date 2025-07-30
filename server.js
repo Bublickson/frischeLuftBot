@@ -45,12 +45,6 @@ bot.onText("/start", async (msg) => {
             callback_data: "russian_video",
           },
         ],
-        [
-          {
-            text: "No need",
-            callback_data: "no_need_video",
-          },
-        ],
       ],
     },
   });
@@ -160,7 +154,7 @@ bot.on("callback_query", async (callbackQuery) => {
     return;
   }
 
-  if (data === "englisch_video" && msg != `https://youtu.be/LAavYAXfkR8`) {
+  if (data === "englisch_video") {
     bot.sendMessage(msg.chat.id, `https://youtu.be/LAavYAXfkR8`);
   }
 
