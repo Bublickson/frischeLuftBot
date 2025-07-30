@@ -6,7 +6,7 @@ export const START_MESSAGE = `
 
 This service provides up-to-date information about air quality in your area and helps you stay informed about potential environmental risks.
 
-ℹ️ Use */help* to learn how to use this bot.
+ℹ️ Want to learn how to use the bot? Type */help* or watch the *video* below:
 `;
 export const INFO_MESSAGE = `
 🌍 Set your /location
