@@ -160,12 +160,12 @@ bot.on("callback_query", async (callbackQuery) => {
     return;
   }
 
-  if (data === "englisch_video") {
-    bot.sendMessage(msg.chat.id, `https://youtu.be/YL3hAPrLkZI`);
+  if (data === "englisch_video" && msg != `https://youtu.be/LAavYAXfkR8`) {
+    bot.sendMessage(msg.chat.id, `https://youtu.be/LAavYAXfkR8`);
   }
 
   if (data === "russian_video") {
-    bot.sendMessage(msg.chat.id, `https://youtu.be/LAavYAXfkR8`);
+    bot.sendMessage(msg.chat.id, `https://youtu.be/YL3hAPrLkZI`);
   }
 
   if (data === "notify_pollution_level") {
