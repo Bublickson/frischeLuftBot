@@ -2,16 +2,16 @@ import { axiosIPv4 } from "../api.js";
 
 export async function geolocation(lat, lng, distance) {
   const aqicnAPI = process.env.AQICN_API_TOKEN;
-  const kmPerDegreeLat = 111.32; // перевод градусов широты в километры
+  const kmPerDegreeLat = 111.32; // Convert degrees of latitude to kilometers
 
-  // Отклонение по широте (север и юг)
+  // Latitude offset (north and south)
   const deltaLat = distance / kmPerDegreeLat;
 
-  // Отклонение по долготе (восток и запад)
+  // Longitude offset (east and west)
   const deltaLng =
     distance / (kmPerDegreeLat * Math.cos((lat * Math.PI) / 180));
 
-  // Границы (север, юг, запад, восток)
+  // Boundaries (north, south, west, east)
   const north = lat + deltaLat;
   const south = lat - deltaLat;
   const east = lng + deltaLng;
@@ -32,7 +32,7 @@ export async function geolocation(lat, lng, distance) {
 }
 
 function findClosestStations(userLat, userLng, apiResponse) {
-  // Добавляем расстояние к каждой станции
+  // Add distance to each station
   const stations = apiResponse.data.map((station) => {
     const distance = calculateDistance(
       userLat,
@@ -47,16 +47,16 @@ function findClosestStations(userLat, userLng, apiResponse) {
     };
   });
 
-  // Сортируем станции по расстоянию (от ближней к дальней)
+  // Sort stations by distance (nearest first)
   stations.sort((a, b) => a.distance - b.distance);
 
   return stations.slice(0, 3);
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  const earthRadius = 6371; // Радиус Земли в километрах
+  const earthRadius = 6371; // Earth's radius in kilometers
 
-  // Переводим координаты в радианы
+  // Convert coordinates to radians
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
 

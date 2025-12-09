@@ -3,7 +3,7 @@ import { readUsersSync } from "./userService.js";
 import { airQualityNotifications } from "./messages.js";
 import { bot } from "../server.js";
 
-const lastAirLevels = {}; // Храним по user.id
+const lastAirLevels = {}; // Stored by user ID
 
 export async function notifications() {
   cron.schedule("*/15 * * * *", async () => {
@@ -30,7 +30,7 @@ export async function notifications() {
           continue;
         }
 
-        // Если есть сообщение и уровень изменился — отправляем
+        // Send notification if the level has changed
         lastAirLevels[user.id] = newLevel;
 
         bot.sendMessage(user.id, message, {
@@ -49,7 +49,3 @@ export async function notifications() {
     }
   });
 }
-
-// * * * * * -> каждую минуту
-
-//  */5 * * * * * -> каждые 5 сек

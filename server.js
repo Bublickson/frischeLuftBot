@@ -228,7 +228,7 @@ bot.on("callback_query", async (callbackQuery) => {
       `🌍 You have successfully selected: *${geoData.name}*`,
       {
         chat_id: msg.chat.id,
-        message_id: msg.message_id, // ID сообщения, которое нужно обновить
+        message_id: msg.message_id, // ID of the message to update
         parse_mode: "Markdown",
       }
     );
