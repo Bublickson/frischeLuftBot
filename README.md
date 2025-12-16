@@ -70,3 +70,9 @@ User settings are stored locally in a JSON file:
 - Telegram ID and username
 - Selected air quality station
 - Notification status and pollution threshold
+
+---
+
+## 📄 License
+
+MIT License
